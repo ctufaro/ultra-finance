@@ -4,7 +4,8 @@ Created on Dec 18, 2010
 @author: ppa
 '''
 import sys
-from BeautifulSoup import BeautifulSoup
+#from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from datetime import datetime
 import time
 

@@ -1,0 +1,4 @@
+numpy>=1.5.1
+beautifulsoup4
+SQLAlchemy>=0.7.8
+mox

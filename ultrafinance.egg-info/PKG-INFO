@@ -1,0 +1,14 @@
+Metadata-Version: 1.1
+Name: ultrafinance
+Version: 1.0.1
+Summary: python project for finance: realtime data collection, analyze, algorithmic trading
+Home-page: http://code.google.com/p/ultra-finance/
+Author: Pan
+Author-email: panpandas@gmail.com
+License: MIT
+Description: UNKNOWN
+Keywords: python,Finance,Algorithm,Trading,Realtime,QuantLib,pydispather
+Platform: UNKNOWN
+Classifier: Development Status :: 1 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
