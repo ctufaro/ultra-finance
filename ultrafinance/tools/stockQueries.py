@@ -12,6 +12,7 @@ class StockQueries():
 		''' constructor '''
 		self.message = "Successfully Initialized StockQueries Class"
 		self.visitedDataPoints = []
+		self.filteredDataPoints = []
 		print(self.message)
 		
 	def populateDataPoints(self, tableName, sqlLitePath):
@@ -30,9 +31,9 @@ class StockQueries():
 				prevVolume = 0
 			
 			if prevVolume != 0:
-				percent = round((curVolume - prevVolume)/prevVolume,5)				
+				percent = (round((curVolume - prevVolume)/prevVolume,5)) * 100				
 				prevVolume = float(row[2])
-				dp = DataPoint(time,symbol,curVolume,percent * 100)
+				dp = DataPoint(time,symbol,curVolume,percent)
 
 			else:				
 				dp = DataPoint(time,symbol,curVolume,0)
@@ -42,15 +43,23 @@ class StockQueries():
 
 		conn.close()
 		
-	def printDataPoints(self):
+	def filterDataPoints(self):
 		for index in range(len(self.visitedDataPoints)):
 			item = self.visitedDataPoints[index]
 			if(index == len(self.visitedDataPoints)-1):
-				print("DATE:{0}, SYMBOL:{1}, VOLUME:{2}, %_DIFF_FROM_PRIOR:{3}".format(item.date,item.symbol,item.volume,item.percent))
+				dp = DataPoint(item.date,item.symbol,item.volume,item.percent)
+				self.filteredDataPoints.append(dp)
 			elif(item.symbol != self.visitedDataPoints[index+1].symbol):
+				dp = DataPoint(item.date,item.symbol,item.volume,item.percent)
+				self.filteredDataPoints.append(dp)
+				
+	def printDataPoints(self):
+		for item in self.filteredDataPoints:
+			if(item.percent>50):
 				print("DATE:{0}, SYMBOL:{1}, VOLUME:{2}, %_DIFF_FROM_PRIOR:{3}".format(item.date,item.symbol,item.volume,item.percent))
 		
 if __name__ == '__main__':
 	stockQueries = StockQueries()
 	stockQueries.populateDataPoints("quotes", "C:\Documents and Settings\ctufaro\My Projects\ultra-finance\ultrafinance\data\stock.sqlite")
+	stockQueries.filterDataPoints()
 	stockQueries.printDataPoints()
