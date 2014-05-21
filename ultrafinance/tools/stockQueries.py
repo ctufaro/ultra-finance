@@ -59,6 +59,12 @@ class StockQueries():
 			if(item.percent>50 or item.percent<-50):
 				f.write("DATE:{0}, SYMBOL:{1}, VOLUME:{2}, %_DIFF_FROM_PRIOR:{3}\n".format(item.date,item.symbol,item.volume,item.percent))
 		f.close()
+		
+	def dropDatabase(self, tableName, sqlLitePath):
+		conn = sqlite3.connect(sqlLitePath)		
+		conn.execute("DROP TABLE %s" % tableName)
+		conn.close()
+		print("Successfully Dropped Table")
 
 if __name__ == '__main__':
 	stockQueries = StockQueries()
