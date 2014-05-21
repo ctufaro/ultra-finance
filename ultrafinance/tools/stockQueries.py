@@ -62,6 +62,6 @@ class StockQueries():
 
 if __name__ == '__main__':
 	stockQueries = StockQueries()
-	stockQueries.populateDataPoints("quotes", "stock.sqlite")
+	stockQueries.populateDataPoints("quotes", "../../Projects/ultra-finance/ultrafinance/tools/stock.sqlite")
 	stockQueries.filterDataPoints()
 	stockQueries.printDataPointsToFile()
