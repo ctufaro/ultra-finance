@@ -71,3 +71,4 @@ if __name__ == '__main__':
 	stockQueries.populateDataPoints("quotes", "stock.sqlite")
 	stockQueries.filterDataPoints()
 	stockQueries.printDataPointsToFile()
+	stockQueries.dropDatabase("quotes", "stock.sqlite")
