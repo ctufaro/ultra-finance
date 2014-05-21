@@ -53,13 +53,15 @@ class StockQueries():
 				dp = DataPoint(item.date,item.symbol,item.volume,item.percent)
 				self.filteredDataPoints.append(dp)
 				
-	def printDataPoints(self):
+	def printDataPointsToFile(self):
+		f = open('output/export','w')
 		for item in self.filteredDataPoints:
-			if(item.percent>50):
-				print("DATE:{0}, SYMBOL:{1}, VOLUME:{2}, %_DIFF_FROM_PRIOR:{3}".format(item.date,item.symbol,item.volume,item.percent))
-		
+			if(item.percent>50 or item.percent<-50):
+				f.write("DATE:{0}, SYMBOL:{1}, VOLUME:{2}, %_DIFF_FROM_PRIOR:{3}\n".format(item.date,item.symbol,item.volume,item.percent))
+		f.close()
+
 if __name__ == '__main__':
 	stockQueries = StockQueries()
-	stockQueries.populateDataPoints("quotes", "~\Projects\ultra-finance\ultrafinance\data\stock.sqlite")
+	stockQueries.populateDataPoints("quotes", "stock.sqlite")
 	stockQueries.filterDataPoints()
-	stockQueries.printDataPoints()
+	stockQueries.printDataPointsToFile()

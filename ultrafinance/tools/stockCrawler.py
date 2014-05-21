@@ -37,7 +37,7 @@ class SymbolCrawler(object):
 
     def getOutputSql(self):
         return path.join(path.dirname(path.dirname(path.realpath(__file__))),
-                         "data",
+                         "tools",
                          "stock.sqlite")
 
     def getOptions(self):
