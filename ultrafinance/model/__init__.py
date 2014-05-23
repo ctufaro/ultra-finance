@@ -4,6 +4,7 @@ Created on Nov 6, 2011
 @author: ppa
 '''
 import json
+import datetime
 from collections import namedtuple
 from ultrafinance.lib.errors import UfException, Errors
 
@@ -15,7 +16,7 @@ class Tick(object):
     ''' tick class '''
     def __init__(self, time, open, high, low, close, volume):
         ''' constructor '''
-        self.time = time
+        self.time = datetime.datetime.fromtimestamp(int(time)).strftime('%Y-%m-%d %H:%M:%S')
         self.open = float(open)
         self.high = float(high)
         self.low = float(low)
