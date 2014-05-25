@@ -55,7 +55,7 @@ class StockQueries():
 				
 	def printDataPointsToFile(self):
 		f = open('output/export','w')
-		for item in self.filteredDataPoints:
+		for item in sorted(self.filteredDataPoints, key=lambda datapoint: datapoint.percent):
 			if(item.percent>50 or item.percent<-50):
 				f.write("DATE:{0}, SYMBOL:{1}, VOLUME:{2}, %_DIFF_FROM_PRIOR:{3}\n".format(item.date,item.symbol,item.volume,item.percent))
 		f.close()
