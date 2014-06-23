@@ -35,16 +35,19 @@ class SymbolCrawler(object):
         self.failed = []
         self.succeeded = []
 
-    def getOutputSql(self):
+    def getOutputSql(self,databaseFile):
+        databaseFileName = "{0}.sqlite".format(databaseFile)
         return path.join(path.dirname(path.dirname(path.realpath(__file__))),
                          "tools",
-                         "stock.sqlite")
+                         databaseFileName)
 
     def getOptions(self):
         ''' crawling data and save to hbase '''
         parser = optparse.OptionParser("Usage: %prog [options]")
         parser.add_option("-f", "--symbolFile", dest = "symbolFile", type = "string",
                           help = "file that contains symbols for each line")
+        parser.add_option("-d", "--databaseFile", dest = "databaseFile", type = "string",
+                          help = "database name")                          
         parser.add_option("-t", "--dataType", dest = "dataType",
                           default = 'quote', type = "string",
                           help = "data type that will be stored, e.g. quote|tick|all")
@@ -61,6 +64,11 @@ class SymbolCrawler(object):
         if options.symbolFile is None or not path.exists(options.symbolFile):
             print("Please provide valid file: %s" % options.symbolFile)
             exit(4)
+            
+        # get database name
+        if options.databaseFile is None:
+            print("Please provide a database name: %s" % options.databaseFile)
+            exit(4)        
 
         # get all symbols
         with open(options.symbolFile, 'r') as f:
@@ -94,7 +102,7 @@ class SymbolCrawler(object):
         print("Retrieving data type: %s" % options.dataType)
 
         if 'sql' == options.outputDAM:
-            sqlLocation = 'sqlite:///%s' % self.getOutputSql()
+            sqlLocation = 'sqlite:///%s' % self.getOutputSql(options.databaseFile)
             print("Sqlite location: %s" % sqlLocation)
             setting = {'db': sqlLocation}
 
