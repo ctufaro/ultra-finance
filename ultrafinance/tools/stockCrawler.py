@@ -31,6 +31,7 @@ class SymbolCrawler(object):
         self.start = None
         self.end = None
         self.database = None
+        self.period = 0
         self.readLock = Lock()
         self.writeLock = Lock()
         self.failed = []
@@ -48,7 +49,9 @@ class SymbolCrawler(object):
         parser.add_option("-f", "--symbolFile", dest = "symbolFile", type = "string",
                           help = "file that contains symbols for each line")
         parser.add_option("-d", "--databaseFile", dest = "databaseFile", type = "string",
-                          help = "database name")                          
+                          help = "database name")
+        parser.add_option("-p", "--period", dest = "period", type = "int",
+                          help = "period")                                  
         parser.add_option("-t", "--dataType", dest = "dataType",
                           default = 'quote', type = "string",
                           help = "data type that will be stored, e.g. quote|tick|all")
@@ -72,6 +75,13 @@ class SymbolCrawler(object):
             exit(4)
         else:
             self.database = options.databaseFile
+            
+        # get number of days
+        if options.period is None:
+            print("Please provide number of days to pull: %s" % options.period)
+            exit(4)
+        else:
+            self.period = options.period
 
         # get all symbols
         with open(options.symbolFile, 'r') as f:
@@ -128,7 +138,7 @@ class SymbolCrawler(object):
         if options.dataType in ["quote", "all"]:
             print("Retrieving quotes start from %s" % self.start)
         else:
-            print("Retrieving ticks for last 15 days")
+            print("Retrieving ticks for last {0} days".format(self.period))
 
     def __getSaveOneSymbol(self, symbol):
         ''' get and save data for one symbol '''
@@ -144,7 +154,7 @@ class SymbolCrawler(object):
                             quotes = self.googleDAM.readQuotes(self.start, self.end)
 
                         if self.isTick:
-                            ticks = self.googleDAM.readTicks(self.start, self.end, self.database)
+                            ticks = self.googleDAM.readTicks(self.start, self.end, self.database, self.period)
                     except BaseException as excp:
                         failCount += 1
                     else:

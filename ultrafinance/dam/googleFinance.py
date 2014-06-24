@@ -172,7 +172,7 @@ class GoogleFinance(object):
             return None
         return float(td.getText().replace(',', ''))
 
-    def getTicks(self, symbol, start, end):
+    def getTicks(self, symbol, start, end, dayParam=0):
         """
         Get tick prices for the given ticker symbol.
         @symbol: stock symbol
@@ -189,7 +189,10 @@ class GoogleFinance(object):
             #start = string2EpochTime(start)
             #end = string2EpochTime(end)
             #period = end - start
-            period = 15
+            if dayParam == 0:
+                period = 15
+            else:
+                period = dayParam
             #url = 'http://www.google.com/finance/getprices?q=%s&i=%s&p=%sd&f=d,o,h,l,c,v&ts=%s' % (symbol, interval, period, start)
             url = 'http://www.google.com/finance/getprices?q=%s&i=61&p=%sd&f=d,o,h,l,c,v' % (symbol, period)
             try:

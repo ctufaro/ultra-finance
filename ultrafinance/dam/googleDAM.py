@@ -26,7 +26,7 @@ class GoogleDAM(BaseDAM):
 
         return self.__gf.getQuotes(self.symbol, start, end)
 
-    def readTicks(self, start, end, existingDB=''):
+    def readTicks(self, start, end, existingDB='', days=0):
         ''' read ticks from google Financial'''
         if self.symbol is None:
             LOG.debug('Symbol is None')
@@ -37,7 +37,7 @@ class GoogleDAM(BaseDAM):
             except Exception,e:
                 print e
            
-        return self.__gf.getTicks(self.symbol, start, end)
+        return self.__gf.getTicks(self.symbol, start, end, days)
         
     def populateProcessedTicksFromDB(self, existingDB):
         #this will need to be dynamic or moved somewhere else
