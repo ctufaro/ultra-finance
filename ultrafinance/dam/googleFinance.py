@@ -7,6 +7,7 @@ import urllib2
 #from BeautifulSoup import BeautifulSoup
 from bs4 import BeautifulSoup
 import traceback
+import datetime
 from ultrafinance.lib.util import convertGoogCSVDate
 from ultrafinance.model import Quote, Tick
 from ultrafinance.lib.errors import UfException, Errors
@@ -28,6 +29,9 @@ class GoogleFinance(object):
               'Total Special Items', 'Normalized Income Before Taxes', 'Effect of Special Items on Income Taxes', 'Income Taxes Ex. Impact of Special Items',
               'Normalized Income After Taxes', 'Normalized Income Avail to Common', 'Basic Normalized EPS', 'Diluted Normalized EPS']
 
+    def __init__(self):
+        self.processedTicks = {}
+    
     def __request(self, url):
         try:
             return urllib2.urlopen(url)
@@ -202,12 +206,15 @@ class GoogleFinance(object):
 
             data = []
             for value in values:
-                data.append(Tick(value[0][1:].strip(),
-                                 value[4].strip(),
-                                 value[2].strip(),
-                                 value[3].strip(),
-                                 value[1].strip(),
-                                 value[5].strip()))
+                timeStr = datetime.datetime.fromtimestamp(int(value[0][1:].strip())).strftime('%Y-%m-%d %H:%M:%S')
+                key = "{0}&{1}".format(symbol,timeStr)
+                if key not in self.processedTicks and int(value[5].strip()) != 0:
+                    data.append(Tick(value[0][1:].strip(),
+                                     value[4].strip(),
+                                     value[2].strip(),
+                                     value[3].strip(),
+                                     value[1].strip(),
+                                     value[5].strip()))
 
             return data
 

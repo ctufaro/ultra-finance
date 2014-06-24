@@ -30,6 +30,7 @@ class SymbolCrawler(object):
         self.isTick = False
         self.start = None
         self.end = None
+        self.database = None
         self.readLock = Lock()
         self.writeLock = Lock()
         self.failed = []
@@ -68,7 +69,9 @@ class SymbolCrawler(object):
         # get database name
         if options.databaseFile is None:
             print("Please provide a database name: %s" % options.databaseFile)
-            exit(4)        
+            exit(4)
+        else:
+            self.database = options.databaseFile
 
         # get all symbols
         with open(options.symbolFile, 'r') as f:
@@ -141,7 +144,7 @@ class SymbolCrawler(object):
                             quotes = self.googleDAM.readQuotes(self.start, self.end)
 
                         if self.isTick:
-                            ticks = self.googleDAM.readTicks(self.start, self.end)
+                            ticks = self.googleDAM.readTicks(self.start, self.end, self.database)
                     except BaseException as excp:
                         failCount += 1
                     else:
