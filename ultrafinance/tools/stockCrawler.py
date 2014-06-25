@@ -8,6 +8,7 @@ from ultrafinance.dam.DAMFactory import DAMFactory
 from os import path
 import re
 import datetime
+import sqlite3
 from dateutil.relativedelta import relativedelta
 import optparse
 
@@ -31,6 +32,7 @@ class SymbolCrawler(object):
         self.start = None
         self.end = None
         self.database = None
+        self.databaseFileName = None
         self.period = 0
         self.readLock = Lock()
         self.writeLock = Lock()
@@ -38,10 +40,10 @@ class SymbolCrawler(object):
         self.succeeded = []
 
     def getOutputSql(self,databaseFile):
-        databaseFileName = "{0}.sqlite".format(databaseFile)
+        self.databaseFileName = "{0}.sqlite".format(databaseFile)
         return path.join(path.dirname(path.dirname(path.realpath(__file__))),
                          "tools",
-                         databaseFileName)
+                         self.databaseFileName)
 
     def getOptions(self):
         ''' crawling data and save to hbase '''
@@ -51,7 +53,9 @@ class SymbolCrawler(object):
         parser.add_option("-d", "--databaseFile", dest = "databaseFile", type = "string",
                           help = "database name")
         parser.add_option("-p", "--period", dest = "period", type = "int",
-                          help = "period")                                  
+                          help = "period")
+        parser.add_option("-c", "--clearTable", dest = "clearTable", type = "string",
+                          help = "option to clear out table")                                
         parser.add_option("-t", "--dataType", dest = "dataType",
                           default = 'quote', type = "string",
                           help = "data type that will be stored, e.g. quote|tick|all")
@@ -67,8 +71,9 @@ class SymbolCrawler(object):
         # get symbols
         if options.symbolFile is None or not path.exists(options.symbolFile):
             print("Please provide valid file: %s" % options.symbolFile)
-            exit(4)
-            
+            exit(4)            
+
+          
         # get database name
         if options.databaseFile is None:
             print("Please provide a database name: %s" % options.databaseFile)
@@ -118,7 +123,10 @@ class SymbolCrawler(object):
             sqlLocation = 'sqlite:///%s' % self.getOutputSql(options.databaseFile)
             print("Sqlite location: %s" % sqlLocation)
             setting = {'db': sqlLocation}
-
+        
+        # get database clear or not
+        if options.clearTable is not None:
+            self.clearData()
 
         # set google and output dam
         self.googleDAM = DAMFactory.createDAM("google")
@@ -211,6 +219,19 @@ class SymbolCrawler(object):
         ''' print out which ones fails'''
         print("Succeeded: %s" % self.succeeded)
         print("Failed: %s" % self.failed)
+        
+    def clearData(self):
+        conn = sqlite3.connect(self.databaseFileName)
+        c = conn.cursor()
+        print self.databaseFileName
+        deleteSQL = "DELETE FROM {0}"
+        if self.isQuote == True:
+            deleteSQL = deleteSQL.format("quotes")
+        elif self.isTick == True:
+            deleteSQL = deleteSQL.format("ticks")
+        c.execute(deleteSQL)
+        conn.commit()
+        print("Successfully cleared Table Query : {0}".format(deleteSQL))   
 
 if __name__ == '__main__':
     crawler = SymbolCrawler()
