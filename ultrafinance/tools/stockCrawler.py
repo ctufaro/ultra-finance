@@ -221,17 +221,20 @@ class SymbolCrawler(object):
         print("Failed: %s" % self.failed)
         
     def clearData(self):
-        conn = sqlite3.connect(self.databaseFileName)
-        c = conn.cursor()
-        print self.databaseFileName
-        deleteSQL = "DELETE FROM {0}"
-        if self.isQuote == True:
-            deleteSQL = deleteSQL.format("quotes")
-        elif self.isTick == True:
-            deleteSQL = deleteSQL.format("ticks")
-        c.execute(deleteSQL)
-        conn.commit()
-        print("Successfully cleared Table Query : {0}".format(deleteSQL))   
+        try:
+            conn = sqlite3.connect(self.databaseFileName)
+            c = conn.cursor()
+            print self.databaseFileName
+            deleteSQL = "DELETE FROM {0}"
+            if self.isQuote == True:
+                deleteSQL = deleteSQL.format("quotes")
+            elif self.isTick == True:
+                deleteSQL = deleteSQL.format("ticks")
+            c.execute(deleteSQL)
+            conn.commit()
+            print("Successfully cleared Table Query : {0}".format(deleteSQL))
+        except Exception,e:
+            print str(e)
 
 if __name__ == '__main__':
     crawler = SymbolCrawler()
