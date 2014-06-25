@@ -53,7 +53,7 @@ class StockQueries():
         sqlLitePath = "{0}.sqlite".format(self.databaseFile)        
         conn = sqlite3.connect(sqlLitePath)        
         visitedSymbols = []
-        selectSQL = "SELECT distinct symbol, SUBSTR(time,0,11) [time], sum(volume) [volume], close from {0} WHERE time not like '1969%' GROUP BY symbol,SUBSTR(time,0,11) ORDER BY id,symbol,SUBSTR(time,0,11)".format(tableName)
+        selectSQL = "SELECT distinct symbol, SUBSTR(time,0,11) [time], sum(volume) [volume], close from {0} GROUP BY symbol,SUBSTR(time,0,11) ORDER BY id,symbol,SUBSTR(time,0,11)".format(tableName)
         cursor = conn.execute(selectSQL)
         
         for row in cursor:
