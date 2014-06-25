@@ -211,7 +211,7 @@ class GoogleFinance(object):
             for value in values:
                 timeStr = datetime.datetime.fromtimestamp(int(value[0][1:].strip())).strftime('%Y-%m-%d %H:%M:%S')
                 key = "{0}&{1}".format(symbol,timeStr)
-                if key not in self.processedTicks and int(value[5].strip()) != 0:
+                if ((key not in self.processedTicks and int(value[5].strip()) != 0) and (timeStr.startswith('1969') == False)):
                     data.append(Tick(value[0][1:].strip(),
                                      value[4].strip(),
                                      value[2].strip(),
