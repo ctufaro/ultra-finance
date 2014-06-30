@@ -55,6 +55,33 @@ class StockRSIVolume():
             rsi[i] = 100. - 100./(1.+rs)
         return rsi         
 
+    def getPreviousDayPriceData(self,dates,close):
+        count = 0
+        firstBusinessDay = dates[0].split(' ')[0]
+        currentBusinessDay = dates[-1].split(' ')[0]
+        previousBusinessDay = None
+        previousClose = None
+        for d in reversed(dates):
+            if currentBusinessDay.split(' ')[0] != d.split(' ')[0]:
+                previousBusinessDay = d.split(' ')[0]
+                previousClose = close[::-1][count] #reversed closed prices
+                break
+            count += 1
+        return firstBusinessDay,previousBusinessDay,currentBusinessDay,previousClose
+        
+    def getVolume(self, dates, volume, currentDay, previousDay):
+        volume = volume[::-1]
+        currentVolume = 0
+        previousVolume = 0
+        count = 0
+        for d in reversed(dates):
+            if currentDay == d.split(' ')[0]:
+                currentVolume += int(volume[count])          
+            elif previousDay == d.split(' ')[0]:
+                previousVolume += int(volume[count]) 
+            count += 1
+        return previousVolume,currentVolume
+    
     def getStockData(self):
         stockData = {}
         conn = sqlite3.connect('penny.sqlite')        
@@ -74,10 +101,15 @@ class StockRSIVolume():
 
 if __name__ == '__main__':
     stockRSIVolume = StockRSIVolume()
+    f = open('crap.csv','w')
     #stockRSIVolume.getCurrentPositions()
     stockData = stockRSIVolume.getStockData()
+    f.write("symbol,rsi,prev_close,current_close,change_in_close,business_date,volume\n")
     for key in stockData:
-        sd = stockData[key]
-        rsi = stockRSIVolume.getRSI(sd.close)[-1]
-        #symbol, currentRSI, currentClose, changeInClose, currentDate, currentVolume, changeInVolume
-        #print sd.symbol,rsi,sd.close[-1],sd.time[-1],sd.time[0]    
+        pennyData = stockData[key]
+        fbd,pbd,cbd,pclose = stockRSIVolume.getPreviousDayPriceData(pennyData.time,pennyData.close)
+        previousVolume,currentVolume = stockRSIVolume.getVolume(pennyData.time,pennyData.volume,cbd,pbd)    
+        rsi = stockRSIVolume.getRSI(pennyData.close)[-1]
+        #symbol, currentRSI, previousclose, currentClose, changeInClose, currentDate, currentVolume
+        f.write("{0},{1},{2},{3},{4},{5},{6}\n".format(pennyData.symbol, rsi, pclose, pennyData.close[-1],  ((pennyData.close[-1] - pclose)/pclose)*100, cbd, currentVolume))
+    f.close()
