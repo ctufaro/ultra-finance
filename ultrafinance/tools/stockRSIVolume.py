@@ -17,11 +17,11 @@ class RSIVolume():
          self.close = []
          self.volume = []           
          
-class StockRSIVolume():
-    
+class StockRSIVolume():    
 
     def __init__(self):
-        pass  
+        self.highPriorityMessages = []
+        self.normalPriorityMessages = []
         
     def getCurrentPositions(self):
         currentPositions = {}
@@ -102,26 +102,38 @@ class StockRSIVolume():
             stockData[row[0]] = listOfRSIVolume
         conn.close()
         return stockData
-
+        
+    def stockRunner(self, stockData, currentPositions):
+        for key in stockData:
+            pennyData = stockData[key]
+            portfolioData = None
+            if key in currentPositions:
+                portfolioData = currentPositions[key]
+            fbd,pbd,cbd,pclose = stockRSIVolume.getPreviousDayPriceData(pennyData.time,pennyData.close)
+            previousVolume,currentVolume = stockRSIVolume.getVolume(pennyData.time,pennyData.volume,cbd,pbd)    
+            rsi = stockRSIVolume.getRSI(pennyData.close)[-1]
+            stockRSIVolume.generateReportData((key in currentPositions), fbd, pbd, cbd, pclose, pennyData.close[-1], previousVolume, currentVolume, rsi, pennyData.symbol, portfolioData)
+    
     def generateReportData(self, isInPortfolio, firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol, portfolioData):
-        if isInPortfolio == True:
-            print firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol, portfolioData.quantity, portfolioData.buyprice
-        #else:
-            #print firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol
+        changeInPrice = round(((currentClose-previousClose)/previousClose)*100,2)
+        
+        if (rsi > 70):
+            if(isInPortfolio == True):
+                previousWorth = int(portfolioData.quantity) * float(portfolioData.buyprice)
+                newWorth = int(portfolioData.quantity) * float(currentClose)
+                changeInWorth = round(((newWorth-previousWorth)/previousWorth)*100,2)
+                self.highPriorityMessages.append("{0},{1},{2},{3},{4}%,{5},${6},${7},{8}%".format(symbol,rsi,previousClose,currentClose,changeInPrice,currentVolume,previousWorth,newWorth,changeInWorth))       
+            else:
+                self.normalPriorityMessages.append("{0},{1},{2},{3},{4}%,{5}".format(symbol,rsi,previousClose,currentClose,changeInPrice,currentVolume))  
+            
+    def sendNotifications(self):
+        stockNotifier = StockNotifier()
+        stockNotifier.sendNotification('HIGH', self.highPriorityMessages)
+        stockNotifier.sendNotification('NORMAL', self.normalPriorityMessages)
         
 if __name__ == '__main__':
-    #stockNotifier = StockNotifier()
-    #print stockNotifier.sendNotification('super high')
     stockRSIVolume = StockRSIVolume()
-    currentPositions = stockRSIVolume.getCurrentPositions()
-    stockData = stockRSIVolume.getStockData()
-    for key in stockData:
-        pennyData = stockData[key]
-        portfolioData = None
-        if key in currentPositions:
-            portfolioData = currentPositions[key]
-        fbd,pbd,cbd,pclose = stockRSIVolume.getPreviousDayPriceData(pennyData.time,pennyData.close)
-        previousVolume,currentVolume = stockRSIVolume.getVolume(pennyData.time,pennyData.volume,cbd,pbd)    
-        rsi = stockRSIVolume.getRSI(pennyData.close)[-1]
-        stockRSIVolume.generateReportData((key in currentPositions), fbd, pbd, cbd, pclose, pennyData.close[-1], previousVolume, currentVolume, rsi, pennyData.symbol, portfolioData)
-
+    currPositions = stockRSIVolume.getCurrentPositions()
+    sData = stockRSIVolume.getStockData()    
+    stockRSIVolume.stockRunner(sData, currPositions)
+    stockRSIVolume.sendNotifications()
