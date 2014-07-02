@@ -3,15 +3,17 @@ import ConfigParser
 
 class StockNotifier(object):
 
-    def __init__(self):
-        self.config = self.initConfig()
-        self.configSection = "EmailSettings"
-        self.username = self.configSectionMap(self.configSection)['username']
-        self.password = self.configSectionMap(self.configSection)['password']
-        self.fromaddr = self.configSectionMap(self.configSection)['fromaddr']
-        self.highpriorityemailaddr = self.configSectionMap(self.configSection)['highpriorityemailaddr']
-        self.normalpriorityemailaddr = self.configSectionMap(self.configSection)['normalpriorityemailaddr']
-    
+    def __init__(self):    
+        configSection = "EmailSettings"
+        self.config = self.initConfig()        
+        self.username = self.configSectionMap(configSection)['username']
+        self.password = self.configSectionMap(configSection)['password']
+        self.fromaddr = self.configSectionMap(configSection)['fromaddr']
+        self.highpriorityemailaddr = self.configSectionMap(configSection)['highpriorityemailaddr']
+        self.normalpriorityemailaddr = self.configSectionMap(configSection)['normalpriorityemailaddr']
+        self.normalpriorityemailaddr = self.configSectionMap(configSection)['normalpriorityemailaddr']
+        self.enablesending = self.configSectionMap(configSection)['enablesending']
+        
     def initConfig(self):
         Config = ConfigParser.ConfigParser()
         Config.read("settings.ini")
@@ -38,9 +40,11 @@ class StockNotifier(object):
                 
     def smtpMail(self, to, msg):         
         formattedMessage = '\n'.join(msg)
-        #print formattedMessage
-        server = smtplib.SMTP('smtp.gmail.com:587')
-        server.starttls()
-        server.login(self.username,self.password)
-        server.sendmail(self.fromaddr, to, formattedMessage)
-        server.quit()
+        if self.enablesending == True:
+            server = smtplib.SMTP('smtp.gmail.com:587')
+            server.starttls()
+            server.login(self.username,self.password)
+            server.sendmail(self.fromaddr, to, formattedMessage)
+            server.quit()
+        else:
+            print formattedMessage
