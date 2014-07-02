@@ -115,6 +115,8 @@ class StockRSIVolume():
             stockRSIVolume.generateReportData((key in currentPositions), fbd, pbd, cbd, pclose, pennyData.close[-1], previousVolume, currentVolume, rsi, pennyData.symbol, portfolioData)
     
     def generateReportData(self, isInPortfolio, firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol, portfolioData):
+        currentClose = float(currentClose)
+        previousClose = float(previousClose)
         changeInPrice = round(((currentClose-previousClose)/previousClose)*100,2)
         
         if (rsi > 70):
