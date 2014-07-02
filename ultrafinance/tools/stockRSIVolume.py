@@ -1,12 +1,14 @@
 import urllib2
 import sqlite3
 import numpy as np
+from ultrafinance.tools.stockNotifier import StockNotifier
 
 class Positions():
-    def __init__ (self, symbol, quantity, date):  
+    def __init__ (self, symbol, quantity, date, buyprice):  
          self.symbol = symbol  
          self.quantity = quantity  
          self.date = date
+         self.buyprice = buyprice
          
 class RSIVolume():
     def __init__ (self):  
@@ -16,6 +18,7 @@ class RSIVolume():
          self.volume = []           
          
 class StockRSIVolume():
+    
 
     def __init__(self):
         pass  
@@ -26,7 +29,7 @@ class StockRSIVolume():
         f = urllib2.urlopen(gitAddress)
         for line in f:
             splitArray = line.split(',')
-            currentPositions[splitArray[0]] = Positions(splitArray[0],splitArray[1],splitArray[2])
+            currentPositions[splitArray[0]] = Positions(splitArray[0],splitArray[1],splitArray[2],splitArray[3])
         f.close()
         return currentPositions
         
@@ -100,19 +103,25 @@ class StockRSIVolume():
         conn.close()
         return stockData
 
+    def generateReportData(self, isInPortfolio, firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol, portfolioData):
+        if isInPortfolio == True:
+            print firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol, portfolioData.quantity, portfolioData.buyprice
+        #else:
+            #print firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol
+        
 if __name__ == '__main__':
+    #stockNotifier = StockNotifier()
+    #print stockNotifier.sendNotification('super high')
     stockRSIVolume = StockRSIVolume()
-    f = open('crap.csv','w')
     currentPositions = stockRSIVolume.getCurrentPositions()
     stockData = stockRSIVolume.getStockData()
-    f.write("symbol,rsi,prev_close,current_close,change_in_close,business_date,volume,port_value\n")
     for key in stockData:
+        pennyData = stockData[key]
+        portfolioData = None
         if key in currentPositions:
-            pennyData = stockData[key]
             portfolioData = currentPositions[key]
-            fbd,pbd,cbd,pclose = stockRSIVolume.getPreviousDayPriceData(pennyData.time,pennyData.close)
-            previousVolume,currentVolume = stockRSIVolume.getVolume(pennyData.time,pennyData.volume,cbd,pbd)    
-            rsi = stockRSIVolume.getRSI(pennyData.close)[-1]
-            #symbol, currentRSI, previousclose, currentClose, changeInClose, currentDate, currentVolume
-            f.write("{0},{1},{2},{3},{4},{5},{6},{7}\n".format(pennyData.symbol, rsi, pclose, pennyData.close[-1],  ((pennyData.close[-1] - pclose)/pclose)*100, cbd, currentVolume,int(portfolioData.quantity)*pennyData.close[-1]))
-    f.close()
+        fbd,pbd,cbd,pclose = stockRSIVolume.getPreviousDayPriceData(pennyData.time,pennyData.close)
+        previousVolume,currentVolume = stockRSIVolume.getVolume(pennyData.time,pennyData.volume,cbd,pbd)    
+        rsi = stockRSIVolume.getRSI(pennyData.close)[-1]
+        stockRSIVolume.generateReportData((key in currentPositions), fbd, pbd, cbd, pclose, pennyData.close[-1], previousVolume, currentVolume, rsi, pennyData.symbol, portfolioData)
+
