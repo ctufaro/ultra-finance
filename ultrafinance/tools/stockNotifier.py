@@ -36,9 +36,11 @@ class StockNotifier(object):
                 dict1[option] = None
         return dict1            
                 
-    def smtpMail(self, to, msg):
+    def smtpMail(self, to, msg):         
+        formattedMessage = '\n'.join(msg)
+        #print formattedMessage
         server = smtplib.SMTP('smtp.gmail.com:587')
         server.starttls()
         server.login(self.username,self.password)
-        server.sendmail(self.fromaddr, to, msg)
+        server.sendmail(self.fromaddr, to, formattedMessage)
         server.quit()

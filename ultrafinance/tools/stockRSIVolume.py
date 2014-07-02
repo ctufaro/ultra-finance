@@ -111,7 +111,7 @@ class StockRSIVolume():
                 portfolioData = currentPositions[key]
             fbd,pbd,cbd,pclose = stockRSIVolume.getPreviousDayPriceData(pennyData.time,pennyData.close)
             previousVolume,currentVolume = stockRSIVolume.getVolume(pennyData.time,pennyData.volume,cbd,pbd)    
-            rsi = stockRSIVolume.getRSI(pennyData.close)[-1]
+            rsi = round(stockRSIVolume.getRSI(pennyData.close)[-1],2)
             stockRSIVolume.generateReportData((key in currentPositions), fbd, pbd, cbd, pclose, pennyData.close[-1], previousVolume, currentVolume, rsi, pennyData.symbol, portfolioData)
     
     def generateReportData(self, isInPortfolio, firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol, portfolioData):
