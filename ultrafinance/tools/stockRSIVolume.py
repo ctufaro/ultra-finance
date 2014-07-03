@@ -112,13 +112,16 @@ class StockRSIVolume():
             fbd,pbd,cbd,pclose = stockRSIVolume.getPreviousDayPriceData(pennyData.time,pennyData.close)
             previousVolume,currentVolume = stockRSIVolume.getVolume(pennyData.time,pennyData.volume,cbd,pbd)    
             rsi = round(stockRSIVolume.getRSI(pennyData.close)[-1],2)
-            stockRSIVolume.generateReportData((key in currentPositions), fbd, pbd, cbd, pclose, pennyData.close[-1], previousVolume, currentVolume, rsi, pennyData.symbol, portfolioData)
+            try:
+                stockRSIVolume.generateReportData((key in currentPositions), fbd, pbd, cbd, pclose, pennyData.close[-1], previousVolume, currentVolume, rsi, pennyData.symbol, portfolioData)
+            except Exception,e:
+                print "Generate Report Failed for {0}".format(key)
     
     def generateReportData(self, isInPortfolio, firstBusinessDate, previousBusinessDate, currentBusinessDate, previousClose, currentClose, previousVolume, currentVolume, rsi, symbol, portfolioData):
         currentClose = float(currentClose)
         previousClose = float(previousClose)
         changeInPrice = round(((currentClose-previousClose)/previousClose)*100,2)
-        
+      
         if (rsi > 70):
             if(isInPortfolio == True):
                 previousWorth = int(portfolioData.quantity) * float(portfolioData.buyprice)
@@ -130,8 +133,10 @@ class StockRSIVolume():
             
     def sendNotifications(self):
         stockNotifier = StockNotifier()
-        stockNotifier.sendNotification('HIGH', self.highPriorityMessages)
-        stockNotifier.sendNotification('NORMAL', self.normalPriorityMessages)
+        if len(self.highPriorityMessages)>0:
+            stockNotifier.sendNotification('HIGH', self.highPriorityMessages)
+        if len(self.normalPriorityMessages)>0:
+            stockNotifier.sendNotification('NORMAL', self.normalPriorityMessages)
         
 if __name__ == '__main__':
     stockRSIVolume = StockRSIVolume()
