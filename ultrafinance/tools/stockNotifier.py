@@ -47,4 +47,4 @@ class StockNotifier(object):
             server.sendmail(self.fromaddr, to, tmsg)
             server.quit()
         else:
-            print formattedMessage
+            print '\n'.join(msg)
