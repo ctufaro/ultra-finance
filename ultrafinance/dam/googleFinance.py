@@ -194,7 +194,7 @@ class GoogleFinance(object):
             else:
                 period = dayParam
             #url = 'http://www.google.com/finance/getprices?q=%s&i=%s&p=%sd&f=d,o,h,l,c,v&ts=%s' % (symbol, interval, period, start)
-            url = 'http://www.google.com/finance/getprices?q=%s&i=61&p=%sd&f=d,o,h,l,c,v' % (symbol, period)
+            url = 'http://www.google.com/finance/getprices?q=%s&i=1801&p=%sd&f=d,o,h,l,c,v' % (symbol, period) #i=61
             try:
                 page = self.__request(url)
             except UfException as ufExcep:
