@@ -1,12 +1,14 @@
 import feedparser
 import time
 import requests
+from ultrafinance.tools.stockNotifier import StockNotifier
+
 
 keywords = ['announces']
 
-f = open('stockNews.html','w')
+f = open('output/StockNews.html','w')
 f.write('<HTML><BODY>')
-with open('C:\Documents and Settings\ctufaro\My Projects\ultra-finance\data\symbols\\penny.list','r') as r:
+with open('../../data/symbols/penny.list','r') as r:
     for symbol in r:
         url = 'http://www.google.com/finance/company_news?q=%s&output=RSS' % symbol
         txt = requests.get(url).text
